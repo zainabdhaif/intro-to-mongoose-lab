@@ -1,44 +1,109 @@
-// Here is where we import modules
-// We begin by loading Express
+//MODULE IMPORTING
 const express = require("express");
 const morgan = require("morgan");
-const mongoose = require("mongoose"); // require package
+const prompt = require('prompt-sync')();
+const dotenv = require("dotenv");
+dotenv.config(); // Loads the environment variables from .env file
+// const mongoose = require('mongoose'); -- THIS WAS MOVED TO DB FOLDER
 
+
+//DATABASE 
+require('./config/database');
+
+const Customer = require("./models/customerModule.js");
 const app = express();
 
-const dotenv = require("dotenv"); // require package
-dotenv.config(); // Loads the environment variables from .env file
-
-//middleware
+//MIDDLEWARE
 app.use(morgan("dev"));
+app.use(express.urlencoded({ extended: false }));
 
-//db things
-mongoose.connect(process.env.MONGODB_URI);
+//ROUTES
+//test
 
-mongoose.connection.on("connected", () => {
-    console.log(`Connected to MongoDB ${mongoose.connection.name}.`);
-  });
-
-    
-const Fruit = require("./models/customerModule.js");
-
-  // another way of doing the connection above
-// const connect = async () => {
-// await mongoose.connect(process.env.MONGODB_URI);
-// console.log('Connected to MongoDB');
-// await runQueries()
-// await mongoose.disconnect();
-// console.log('Disconnected from MongoDB');
-// process.exit();
-// };
-
-//routes
-
+//landing page - just to check if server is working
 app.listen(3000, () => {
-  console.log("Listening on port 3000");
+    console.log("Listening on port 3000");
 });
 
+const start = () => {
+ displayOptions();
+};
 
-app.get("/", async (req, res, next) => {
-    res.render("index.ejs");
-  });
+//display all options
+const displayOptions = () => {
+    console.log("Welcome to the CRM");
+    console.log("What would you like to do?");
+    console.log("1. Create a customer");
+    console.log("2. View all customers");
+    console.log("3. Update a customer");
+    console.log("4. Delete a customer");
+    console.log("5. quit");
+
+    const optionChosen = prompt("Number of action to run:");
+    if (optionChosen === "1"){
+        createCustomer();
+    }
+    else if (optionChosen === "2"){
+        allCustomers();
+    }
+    else if (optionChosen === "3"){
+       updateCustomer();
+    }
+    else if (optionChosen === "4"){
+        deleteCustomer();
+    }
+    else if (optionChosen === "5"){
+        quitApp();
+    }
+}
+//1- create a customer
+const createCustomer = () => {
+    console.log('hello1');
+}
+
+//2-show all customers
+const allCustomers = async () => {
+    const customerList = await Customer.find();
+    console.log(`These are all the customers: ${customerList}`);
+};
+
+//3- update a cutsomer
+const updateCustomer = async () => {
+
+    //first display all customers so that user can pick which one he'd like to edit
+    const customerList = await Customer.find();
+    console.log(`These are all the customers: ${customerList}`);
+
+    //user enters ID of customer they wish to edit
+    const updateID = prompt('Please add the ID of the customer you wish to edit:');
+    const updatedCustomerID = await Customer.findById(updateID);
+
+    //display the "old" data of customer
+    console.log(`These are the customers old details: ${updatedCustomerID}`);
+
+    //prompt to update data and actually update the customer's info
+    const updateCustomer = await Customer.findByIdAndUpdate(updatedCustomerID, {name: prompt("What is the customer's updated name?"), age: prompt("What is the customer's updated age?"),});
+
+    console.log(`This is the customer's updated info: ${updateCustomer}`);
+}
+
+//4- delete a customer
+const deleteCustomer = async () => {
+    //first display all customers so that user can pick which one he'd like to delete
+    const customerList = await Customer.find();
+    console.log(`These are all the customers: ${customerList}`);
+
+    //user enters ID of customer they wish to delete
+    const deleteID = prompt('Please add the ID of the customer you wish to delete:');
+    const deletedCustomerID = await Customer.findByIdAndDelete(deleteID);
+
+    console.log(`This customer was deleted: ${deletedCustomerID}`);
+}
+
+//5- quit
+const quitApp = async () => {
+    console.log('Quitting...');
+    mongoose.connection.close()
+}
+
+start();

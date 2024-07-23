@@ -4,6 +4,7 @@ const customerSchema = new mongoose.Schema({
     age: Number,
 }) 
 
-const customers = mongoose.model('customers', customerSchema);
-module.exports = customers;
+const customer = mongoose.model('customer', customerSchema);
+module.exports = customer;
+
 
