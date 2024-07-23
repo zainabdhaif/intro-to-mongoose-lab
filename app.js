@@ -15,7 +15,7 @@ const app = express();
 
 //MIDDLEWARE
 app.use(morgan("dev"));
-app.use(express.urlencoded({ extended: false }));
+
 
 //ROUTES
 //test
