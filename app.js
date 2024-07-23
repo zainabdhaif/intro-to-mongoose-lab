@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: false }));
 
 //landing page - just to check if server is working
 app.listen(3000, () => {
-    console.log("Listening on port 3000");
+    // console.log("Listening on port 3000");
 });
 
 const start = () => {
@@ -31,6 +31,7 @@ const start = () => {
 
 //display all options
 const displayOptions = () => {
+    console.log('/////////////////////////')
     console.log("Welcome to the CRM");
     console.log("What would you like to do?");
     console.log("1. Create a customer");
@@ -57,14 +58,21 @@ const displayOptions = () => {
     }
 }
 //1- create a customer
-const createCustomer = () => {
-    console.log('hello1');
+const createCustomer = async () => {
+    const newCustomer = {
+        name: prompt("What is the customer's name?"),
+        age: prompt("What is the customer's age?"),
+    };
+    const newCustomerAdd = await Customer.create(newCustomer);
+    console.log(`These are the details of the new customer added: ${newCustomerAdd}`);
+    start();
 }
 
 //2-show all customers
 const allCustomers = async () => {
     const customerList = await Customer.find();
     console.log(`These are all the customers: ${customerList}`);
+    start();
 };
 
 //3- update a cutsomer
@@ -85,6 +93,7 @@ const updateCustomer = async () => {
     const updateCustomer = await Customer.findByIdAndUpdate(updatedCustomerID, {name: prompt("What is the customer's updated name?"), age: prompt("What is the customer's updated age?"),});
 
     console.log(`This is the customer's updated info: ${updateCustomer}`);
+    start();
 }
 
 //4- delete a customer
@@ -98,12 +107,14 @@ const deleteCustomer = async () => {
     const deletedCustomerID = await Customer.findByIdAndDelete(deleteID);
 
     console.log(`This customer was deleted: ${deletedCustomerID}`);
+    start();
 }
 
 //5- quit
 const quitApp = async () => {
-    console.log('Quitting...');
-    mongoose.connection.close()
+    await mongoose.disconnect();
+    console.log('quitting the app..');
+    process.exit();
 }
 
 start();
